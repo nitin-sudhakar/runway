@@ -1,0 +1,27 @@
+{
+  "oxygen_concentrator": [
+    { "title": "Charge your oxygen battery to 100% tonight", "when": "night_before", "reason": "Your oxygen concentrator needs power. A full backup battery gives you more time if the power goes out." },
+    { "title": "Ask your supplier about backup oxygen tanks", "when": "two_days_before", "reason": "A portable oxygen tank does not need electricity and can cover the time your battery runs out." },
+    { "title": "If your battery covers fewer hours than the outage, plan where to go", "when": "night_before", "reason": "You need a place with power, like a family member's home or a cooling center, before your battery runs out." }
+  ],
+  "cpap": [
+    { "title": "Charge your CPAP battery tonight", "when": "night_before", "reason": "A full CPAP battery keeps your device running through a short outage." }
+  ],
+  "home_dialysis": [
+    { "title": "Call your dialysis center to confirm a backup plan", "when": "two_days_before", "reason": "Home dialysis needs power and water. Your center can help you stay safe if either is interrupted." }
+  ],
+  "insulin_fridge": [
+    { "title": "Review your insulin storage instructions", "when": "two_days_before", "reason": "Storage requirements vary. Ask your pharmacist what to do if refrigeration is interrupted." },
+    { "title": "Ask your pharmacist about backup cooling", "when": "two_days_before", "reason": "Your pharmacist can help you plan an appropriate backup for this specific medicine." }
+  ],
+  "power_wheelchair": [
+    { "title": "Charge your wheelchair fully tonight", "when": "night_before", "reason": "A full charge means you can move around safely even if power is out." }
+  ],
+  "general": [
+    { "title": "Charge your phone and a power bank", "when": "night_before", "reason": "A charged phone lets you call for help, get alerts, and reach your family." },
+    { "title": "Tell your contact about the forecast", "when": "two_days_before", "reason": "Letting someone know ahead of time means they can check on you if power goes out." },
+    { "title": "Know your nearest cool or warm place", "when": "two_days_before", "reason": "Libraries, community centers, and cooling stations stay open during outages and are a safe place to go." },
+    { "title": "Keep a flashlight within reach", "when": "one_hour_before", "reason": "A flashlight helps you move around safely at night without power." },
+    { "title": "Never use a generator or grill indoors", "when": "during_outage", "reason": "Generators and grills produce carbon monoxide gas, which is deadly indoors. Always use them outside, far from windows." }
+  ]
+}

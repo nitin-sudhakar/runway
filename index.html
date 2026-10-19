@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Runway Outage Outlook</title>
+  <meta name="description" content="Power outage forecasts for your ZIP code, with a simple plan for your home and Watson, an AI guide built on IBM watsonx.ai.">
+  <meta name="theme-color" content="#161616">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- Masthead ------------------------------------------------------------>
+<header class="masthead">
+  <div class="masthead-inner col">
+    <a class="brand" href="#top" aria-label="Runway home"><span class="logo" data-logo></span></a>
+    <nav class="masthead-nav" aria-label="Main">
+      <a href="#forecast">Outlook</a>
+      <a href="#actions">Get ready</a>
+      <a href="#watson">Ask Watson</a>
+      <a href="#how-it-works">How it works</a>
+    </nav>
+    <div class="masthead-right">
+      <a class="zip-chip" href="#forecast" id="zip-chip" aria-label="Change location">
+        <i data-icon="Location" data-size="16"></i>
+        <span class="zip-chip-zip" id="zip-chip-zip">90007</span>
+        <span class="zip-chip-level" id="zip-chip-level"></span>
+      </a>
+      <button type="button" class="btn btn--primary masthead-cta" data-ask>Ask Watson <i data-icon="ChatBot" data-size="16"></i></button>
+      <button type="button" class="btn btn--primary btn--icon masthead-cta-icon" data-ask aria-label="Ask Watson"><i data-icon="ChatBot" data-size="20"></i></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Hero -------------------------------------------------------------->
+  <section id="top" class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner col">
+      <div class="hero-copy">
+        <p class="hero-eyebrow" id="hero-eyebrow">Power outage forecast</p>
+        <h1 id="hero-title">Know before the lights go out.</h1>
+        <p class="hero-lead">Runway forecasts the chance of a power outage for your ZIP code, from the next few hours to the months ahead. It turns that forecast into a short plan for your home, with Watson on hand to answer questions.</p>
+        <nav class="quick-actions" id="quick-actions" aria-label="Quick actions"></nav>
+      </div>
+      <aside class="status-card" id="status-card" aria-label="Your status right now"></aside>
+    </div>
+  </section>
+
+  <!-- Dual-use value strip ------------------------------------------------>
+  <section class="value-strip" aria-label="What Runway does">
+    <div class="value-inner col">
+      <div class="value"><i data-icon="Currency" data-size="24"></i><h2>On an ordinary day</h2><p>Shift laundry, dishes and car charging to cheaper hours and lower your bill.</p></div>
+      <div class="value"><i data-icon="WarningAlt" data-size="24"></i><h2>Before a storm or heat wave</h2><p>Get a few steps chosen for your home, timed before the riskiest day, with the reason for each.</p></div>
+      <div class="value"><i data-icon="Map" data-size="24"></i><h2>When the power is out</h2><p>Find hospitals, cooling centers and charging spots nearby, and ask Watson what to do next.</p></div>
+    </div>
+  </section>
+
+  <div class="page col">
+    <!-- 1 · Outlook ------------------------------------------------------->
+    <section id="forecast" class="section" aria-labelledby="forecast-title">
+      <header class="section-head">
+        <span class="eyebrow">Outlook</span>
+        <h2 id="forecast-title" class="section-title">Outage outlook for <span data-zip>90007</span></h2>
+        <p class="section-lead">Hour by hour for the next three days, day by day for ten, and the season ahead. Select any period to see what's driving the risk.</p>
+      </header>
+
+      <div class="location-bar">
+        <div class="location-current">
+          <span class="kicker">Your ZIP</span>
+          <strong data-zip>90007</strong>
+          <span class="location-name" id="location-name">Los Angeles, CA</span>
+        </div>
+        <form class="location-form" id="zip-form" novalidate>
+          <div class="field-wrap">
+            <label for="zip-input" class="sr-only">Change ZIP</label>
+            <input class="field" id="zip-input" placeholder="Enter ZIP" inputmode="numeric" maxlength="5" autocomplete="postal-code" aria-describedby="zip-error">
+            <p class="field-error" id="zip-error" hidden></p>
+          </div>
+          <button type="submit" class="btn btn--secondary btn--md" id="zip-go">Go</button>
+          <button type="button" class="btn btn--ghost btn--md" id="zip-detect">Use my location <i data-icon="LocationCurrent" data-size="16"></i></button>
+        </form>
+      </div>
+
+      <div class="horizon-row">
+        <div class="switcher" role="tablist" aria-label="Forecast range" id="horizon">
+          <button type="button" role="tab" data-horizon="hourly" aria-selected="false">Hourly</button>
+          <button type="button" role="tab" data-horizon="daily" aria-selected="true">10-day</button>
+          <button type="button" role="tab" data-horizon="weekly" aria-selected="false">Weekly</button>
+          <button type="button" role="tab" data-horizon="monthly" aria-selected="false">Monthly</button>
+        </div>
+        <span class="loading" id="outlook-loading"><span class="spinner"></span>Getting the latest forecast</span>
+      </div>
+
+      <div class="period-strip period-strip--daily" id="period-strip" role="listbox" aria-label="Forecast periods"></div>
+      <div class="period-detail" id="period-detail" aria-live="polite"></div>
+      <cite class="src src--block" id="outlook-cite"></cite>
+
+      <div class="subhead" id="notices"><h3>Alerts and notices</h3></div>
+      <div id="notice-list"></div>
+
+      <div class="subhead" id="map"><h3>Map</h3><span class="subhead-note" id="map-period"></span></div>
+      <div class="layer-chips" id="layer-chips" role="group" aria-label="Map layers"></div>
+      <p class="offline-note" id="offline-note" hidden>Radar, warnings, fires, power lines and places nearby load from live public data. They switch on when Runway runs with an internet connection.</p>
+      <div class="map-frame" id="map-frame">
+        <div class="risk-map" id="risk-map" role="application" aria-label="Map of outage risk around your ZIP"></div>
+        <span class="map-offline-badge" id="map-offline" hidden>Street map needs an internet connection. Showing ZIP code centers.</span>
+        <div class="map-legend" id="map-legend" aria-hidden="true"></div>
+      </div>
+      <cite class="src src--block" id="map-cite"></cite>
+    </section>
+
+    <!-- 2 · Get ready ----------------------------------------------------->
+    <section id="actions" class="section" aria-labelledby="actions-title">
+      <header class="section-head section-head--row">
+        <div class="section-head-text">
+          <span class="eyebrow">Get ready</span>
+          <h2 id="actions-title" class="section-title">Steps for your home</h2>
+          <p class="section-lead">Chosen for what matters in your home and timed before the riskiest day. Most take less than five minutes.</p>
+        </div>
+        <div class="progress-tile" id="progress"></div>
+      </header>
+      <div class="home-chips">
+        <span class="home-chips-label">What matters in your home? Select all that apply.</span>
+        <div class="home-chips-row" id="home-chips" role="group" aria-label="What matters in your home"></div>
+      </div>
+      <ol class="action-list" id="action-list"></ol>
+      <p class="fine">Tips are general guidance, not medical advice. Your answers stay on this device and are not saved.</p>
+    </section>
+
+    <!-- 3 · Ask Watson ---------------------------------------------------->
+    <section id="watson" class="section" aria-labelledby="watson-title">
+      <header class="section-head">
+        <span class="eyebrow">Ask</span>
+        <h2 id="watson-title" class="section-title watson-title">Ask Watson
+          <span class="ai-wrap">
+            <button type="button" class="ai-label" id="ai-label" aria-expanded="false" aria-controls="ai-pop" aria-label="About Watson">AI</button>
+            <span class="ai-pop" id="ai-pop" role="dialog" aria-label="AI explained" hidden>
+              <span class="kicker">AI explained</span>
+              <span><strong>Watson</strong> is an AI assistant built on IBM watsonx.ai with the Granite model. It answers using your ZIP outlook, alerts and the home details you selected.</span>
+              <span>It can make mistakes and doesn't give medical advice. In an emergency, call 911.</span>
+            </span>
+          </span>
+        </h2>
+        <p class="section-lead">An AI guide that knows your outlook and your plan. Ask in your own words, or start with one of the questions below.</p>
+      </header>
+      <div class="chat-card">
+        <div class="chat-head">
+          <span class="watson-avatar" aria-hidden="true"><i data-icon="ChatBot" data-size="20"></i></span>
+          <div><strong>Watson</strong><span class="sub" id="watson-status">Checking for the Runway service</span></div>
+        </div>
+        <div class="chat-feed" id="chat-feed" role="log" aria-live="polite" aria-label="Conversation with Watson"></div>
+        <div class="chat-suggest" id="chat-suggest"></div>
+        <form class="chat-input" id="chat-form">
+          <label for="watson-input" class="sr-only">Message Watson</label>
+          <input id="watson-input" placeholder="Ask Watson anything about your power…" autocomplete="off" enterkeyhint="send">
+          <button type="submit" class="btn btn--primary btn--icon" id="chat-send" aria-label="Send" disabled><i data-icon="Send" data-size="16"></i></button>
+        </form>
+      </div>
+    </section>
+
+    <!-- How it works ------------------------------------------------------>
+    <section id="how-it-works" class="section" aria-labelledby="how-title">
+      <header class="section-head">
+        <span class="eyebrow">How it works</span>
+        <h2 id="how-title" class="section-title">Hundreds of signals. One plan made for you.</h2>
+        <p class="section-lead">Runway reads everything that can knock out power where you live, from the trees over your street to the speed of the wind, and runs it through prediction models trained on years of outages. Then it learns how you live, so the plan it gives you fits your home and not an average one.</p>
+      </header>
+      <dl class="how-stats">
+        <div><dt>Signals per ZIP</dt><dd>Hundreds</dd></div>
+        <div><dt>ZIP codes covered</dt><dd>42,000+</dd></div>
+        <div><dt>Forecast range</dt><dd>3 hours to 3 months</dd></div>
+        <div><dt>Refreshed</dt><dd>Every hour</dd></div>
+      </dl>
+      <div class="signal-grid">
+        <div class="signal"><i data-icon="WindGusts" data-size="24"></i><h3>Weather and climate</h3><ul><li>Wind speed and gusts, hour by hour</li><li>Temperature and heat index</li><li>Rain, snow, ice and soil moisture</li><li>Humidity and fire weather</li><li>Thunderstorms and lightning</li><li>Seasonal outlooks</li></ul></div>
+        <div class="signal"><i data-icon="Tree" data-size="24"></i><h3>Land and trees</h3><ul><li>Tree canopy over power lines</li><li>How dry the vegetation is</li><li>Terrain and wind exposure</li><li>Active wildfires and fire-risk zones</li><li>Flood zones</li></ul></div>
+        <div class="signal"><i data-icon="PlugFilled" data-size="24"></i><h3>The power grid</h3><ul><li>Overhead and underground lines</li><li>Substations near you</li><li>Years of past outages by area</li><li>Outages happening now</li><li>Planned shutoffs and PSPS events</li><li>Peak demand on hot days</li></ul></div>
+        <div class="signal"><i data-icon="LocationHeart" data-size="24"></i><h3>Your neighborhood</h3><ul><li>Hospitals and fire stations</li><li>Cooling and charging centers</li><li>EV chargers</li><li>Utility programs for medical needs</li><li>Local weather alerts</li></ul></div>
+        <div class="signal signal--you"><i data-icon="UserProfile" data-size="24"></i><h3>You</h3><ul><li>Medical devices and medicine</li><li>Electric car and home battery</li><li>Chores you can move</li><li>Your electricity rate and budget</li><li>Family to check in with</li><li>Your language</li></ul></div>
+      </div>
+      <ol class="how-steps">
+        <li><i data-icon="DataBase" data-size="20"></i><span class="how-num">01</span><h3>Collect</h3><p>Public forecasts, satellite and land data, utility records and live outage feeds come together for your ZIP and refresh every hour.</p></li>
+        <li><i data-icon="MachineLearningModel" data-size="20"></i><span class="how-num">02</span><h3>Predict</h3><p>Models trained on past outages estimate the chance of an outage for each period, how long it may last, and how sure they are.</p></li>
+        <li><i data-icon="UserProfile" data-size="20"></i><span class="how-num">03</span><h3>Understand you</h3><p>Your devices, routines, budget and the people you care for decide what matters. You choose what to share and can change it anytime.</p></li>
+        <li><i data-icon="IbmWatsonxAssistant" data-size="20"></i><span class="how-num">04</span><h3>Plan and guide</h3><p>Runway turns all of it into steps timed for you. Watson, built on IBM watsonx.ai, answers your questions and updates the plan as things change.</p></li>
+      </ol>
+      <p class="fine">Runway is a prototype. Its models and ZIP-level exposure data haven't been validated against real outage records yet.</p>
+    </section>
+  </div>
+</main>
+
+<!-- Footer ------------------------------------------------------------->
+<footer class="site-footer">
+  <div class="footer-inner col">
+    <div class="footer-brand">
+      <a class="brand" href="#top" aria-label="Runway home"><span class="logo" data-logo></span></a>
+      <p>Outage forecasts and simple plans for every home. Built at the InnovateLA Dual-Use Hackathon, USC, October 2026.</p>
+    </div>
+    <nav class="footer-col" aria-label="Product">
+      <h2>Product</h2>
+      <a href="#forecast">Outage outlook</a>
+      <a href="#actions">Steps for your home</a>
+      <a href="#watson">Ask Watson</a>
+      <a href="#how-it-works">How it works</a>
+    </nav>
+    <nav class="footer-col" aria-label="Data sources">
+      <h2>Data sources</h2>
+      <a href="https://www.weather.gov/documentation/services-web-api" target="_blank" rel="noreferrer">National Weather Service</a>
+      <a href="https://gis.data.ca.gov/maps/CalEMA::statewide-power-outages-public-view" target="_blank" rel="noreferrer">Cal OES power outages</a>
+      <a href="https://mesonet.agron.iastate.edu/ogc/" target="_blank" rel="noreferrer">NOAA NEXRAD radar (IEM)</a>
+      <a href="https://data-nifc.opendata.arcgis.com/" target="_blank" rel="noreferrer">NIFC wildfire perimeters</a>
+      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>
+      <a href="https://www.ibm.com/watsonx" target="_blank" rel="noreferrer">IBM watsonx.ai</a>
+    </nav>
+    <div class="footer-col">
+      <h2>Safety</h2>
+      <p>Runway shows estimates, not guarantees. If someone's health depends on power and it goes out, call 911. Report outages to your utility.</p>
+    </div>
+  </div>
+  <div class="footer-base col"><span>© 2026 Runway prototype</span><span>Designed with the IBM Carbon Design System</span></div>
+</footer>
+
+<script src="vendor/leaflet.js"></script>
+<script src="icons.js"></script>
+<script src="zips.js"></script>
+<script src="model.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
